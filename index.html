@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Rectangle</title>
+    <title>Interactive 3D Card</title>
     <style>
         body {
             margin: 0;
@@ -10,29 +11,64 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f0f0f0;
+            background: black;
             overflow: hidden;
+            font-family: Arial, sans-serif;
+            cursor: none; /* Initially hide cursor */
         }
 
-        .rectangle {
-            width: 150px;
-            height: 100px;
-            background: linear-gradient(to right, #4caf50, #81c784);
+        .intro {
+            position: absolute;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: white;
-            font-family: Arial, sans-serif;
-            font-size: 18px;
-            text-align: center;
-            border-radius: 8px;
-            transform-style: preserve-3d;
-            transition: transform 0.6s ease-in-out;
-            cursor: pointer;
+            height: 100%;
+            width: 100%;
+            background: black;
+            z-index: 10;
         }
 
-        .rectangle.flipped {
-            transform: rotateY(180deg);
+        .intro-circle {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1rem;
+            color: black;
+            text-align: center;
+            pointer-events: none;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .intro-circle p {
+            margin: 0;
+        }
+
+        .rectangle-container {
+            perspective: 1000px;
+            display: none;
+        }
+
+        .rectangle {
+            width: 300px;
+            height: 200px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            background: transparent;
+        }
+
+        .rectangle-inner {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transform-origin: center;
+            transition: transform 0.8s;
         }
 
         .front, .back {
@@ -40,59 +76,147 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
+            border-radius: 10px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            margin: 0;
+            border: none;
+        }
+
+        .front {
+            background: linear-gradient(135deg, #ff6a00, #ee0979);
         }
 
         .back {
-            background: linear-gradient(to right, #2196f3, #64b5f6);
             transform: rotateY(180deg);
+            background: linear-gradient(135deg, #ee0979, #ff6a00);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: white;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
-    <div class="rectangle" id="rectangle">
-        <div class="front">Front</div>
-        <div class="back">Back</div>
+    <div class="intro" id="intro">
+        <div class="intro-circle" id="introCircle">
+            <p>Click to reveal the card</p>
+        </div>
+    </div>
+
+    <div class="rectangle-container" id="rectangleContainer">
+        <div class="rectangle" id="rectangle">
+            <div class="rectangle-inner" id="rectangleInner">
+                <div class="front">
+                    <div class="info">Hover to tilt the card!</div>
+                </div>
+                <div class="back">
+                    <p>Click to recalibrate if not working correctly</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         const rectangle = document.getElementById('rectangle');
-        let flipped = false;
-        let mouseRotation = { x: 0, y: 0 };
+        const rectangleInner = document.getElementById('rectangleInner');
+        const introCircle = document.getElementById('introCircle');
+        const intro = document.getElementById('intro');
+        const rectangleContainer = document.getElementById('rectangleContainer');
 
-        // Flip rectangle on click/tap
-        rectangle.addEventListener('click', () => {
-            flipped = !flipped;
-            updateTransform();
-        });
+        if (isMobile) {
+            let initialBeta = 0;
+            let initialGamma = 0;
+            let calibrated = false;
 
-        // Rotate rectangle based on mouse position (for PC)
-        document.addEventListener('mousemove', (e) => {
-            const rect = rectangle.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            const deltaX = e.clientX - centerX;
-            const deltaY = e.clientY - centerY;
-            mouseRotation.x = deltaY / 10;
-            mouseRotation.y = -deltaX / 10;
-            updateTransform();
-        });
+            const multiplierX = 3; // Sensitivity for left-right tilt (gamma)
+            const multiplierY = 2; // Sensitivity for front-back tilt (beta)
+            const maxTilt = 30; // Maximum tilt in degrees
 
-        // Rotate rectangle based on accelerometer data (for mobile)
-        if (window.DeviceOrientationEvent) {
+            // Function to calibrate the initial orientation
+            const calibrateOrientation = (beta, gamma) => {
+                initialBeta = beta;
+                initialGamma = gamma;
+                calibrated = true;
+            };
+
+            // Mobile orientation handling
             window.addEventListener('deviceorientation', (event) => {
-                const { beta, gamma } = event; // beta: front/back tilt, gamma: left/right tilt
-                mouseRotation.x = beta ? beta / 3 : 0;
-                mouseRotation.y = gamma ? gamma / 3 : 0;
-                updateTransform();
+                if (!calibrated) {
+                    calibrateOrientation(event.beta, event.gamma);
+                }
+
+                const deltaBeta = event.beta - initialBeta;
+                const deltaGamma = event.gamma - initialGamma;
+
+                // Adjust with independent multipliers
+                let rotateX = -(deltaBeta * multiplierY) / 2;
+                let rotateY = -(deltaGamma * multiplierX) / 2;
+
+                // Clamp values
+                rotateX = Math.max(-maxTilt, Math.min(maxTilt, rotateX));
+                rotateY = Math.max(-maxTilt, Math.min(maxTilt, rotateY));
+
+                rectangle.style.transition = "none"; // Immediate response
+                rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            // Add click event for recalibration
+            window.addEventListener('click', () => {
+                calibrated = false;
+            });
+
+            // Add click event for flipping the card
+            rectangle.addEventListener('click', () => {
+                rectangleInner.style.transform = rectangleInner.style.transform === 'rotateY(180deg)'
+                    ? 'rotateY(0deg)'
+                    : 'rotateY(180deg)';
+            });
+        } else {
+            // PC version: Cursor movement handling
+            rectangleContainer.addEventListener('mousemove', (event) => {
+                const rect = rectangleContainer.getBoundingClientRect();
+                const x = event.clientX - rect.left - rect.width / 2;
+                const y = event.clientY - rect.top - rect.height / 2;
+
+                const rotateX = -y / 10; // Adjust sensitivity for vertical movement
+                const rotateY = x / 10; // Adjust sensitivity for horizontal movement
+
+                rectangle.style.transition = "none"; // Immediate response to cursor movement
+                rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            rectangleContainer.addEventListener('mouseleave', () => {
+                rectangle.style.transition = "transform 0.3s ease"; // Smooth return to center
+                rectangle.style.transform = `rotateX(0deg) rotateY(0deg)`;
+            });
+
+            // Add click event for flipping the card
+            rectangle.addEventListener('click', () => {
+                rectangleInner.style.transform = rectangleInner.style.transform === 'rotateY(180deg)'
+                    ? 'rotateY(0deg)'
+                    : 'rotateY(180deg)';
             });
         }
 
-        // Update the transformation of the rectangle
-        function updateTransform() {
-            const flipRotation = flipped ? "rotateY(180deg)" : "rotateY(0deg)";
-            const mouseTransform = `rotateX(${mouseRotation.x}deg) rotateY(${mouseRotation.y}deg)`;
-            rectangle.style.transform = `${flipRotation} ${mouseTransform}`;
-        }
+        // Reveal the card on click or tap
+        introCircle.addEventListener('click', () => {
+            intro.style.display = 'none'; // Hide intro screen
+            rectangleContainer.style.display = 'block'; // Show card container
+        });
     </script>
 </body>
 </html>
