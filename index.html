@@ -163,7 +163,7 @@
     let initialGamma = 0;
     let calibrated = false;
 
-    const multiplier = 5; // Adjust this value to control sensitivity
+    const multiplier = 3; // Adjust this value to control sensitivity
     const maxTilt = 30; // Maximum tilt in degrees
     const neutralThreshold = 2; // Threshold for detecting no motion
 
@@ -203,7 +203,7 @@
             rotateY = Math.max(-maxTilt, Math.min(maxTilt, rotateY));
         }
 
-        rectangle.style.transition = isNeutral ? "transform 1s ease" : "none"; // Smooth snap back when neutral
+        rectangle.style.transition = isNeutral ? "transform 0.3s ease" : "none"; // Smooth snap back when neutral
         rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
     });
 
@@ -211,7 +211,24 @@
     window.addEventListener('click', () => {
         calibrated = false; // Reset calibration
     });
-}
+} else {
+            // PC version: Use mouse movement
+            rectangleContainer.addEventListener('mousemove', (event) => {
+                const rect = rectangleContainer.getBoundingClientRect();
+                const x = event.clientX - rect.left - rect.width / 2;
+                const y = event.clientY - rect.top - rect.height / 2;
+
+                const rotateX = -y / 10;
+                const rotateY = x / 10;
+
+                rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            rectangleContainer.addEventListener('mouseleave', () => {
+                rectangle.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            });
+        }
+
         rectangle.addEventListener('click', () => {
             rectangleInner.style.transform = rectangleInner.style.transform === 'rotateY(180deg)'
                 ? 'rotateY(0deg)'
