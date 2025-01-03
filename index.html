@@ -161,8 +161,9 @@
         if (isMobile) {
             // Mobile version: Use accelerometer
             window.addEventListener('deviceorientation', (event) => {
-                const rotateX = event.beta / 2; // Beta is the front-to-back tilt
-                const rotateY = event.gamma / 2; // Gamma is the left-to-right tilt
+                const multiplier = 3; // Adjust this value to control sensitivity
+                const rotateX = -(event.beta * multiplier) / 2; // Inverted front-to-back tilt
+                const rotateY = -(event.gamma * multiplier) / 2; // Inverted left-to-right tilt
 
                 rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
             });
