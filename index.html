@@ -159,15 +159,22 @@
         });
 
         if (isMobile) {
-            // Mobile version: Use accelerometer
-            window.addEventListener('deviceorientation', (event) => {
-                const multiplier = 3; // Adjust this value to control sensitivity
-                const rotateX = -(event.beta * multiplier) / 2; // Inverted front-to-back tilt
-                const rotateY = -(event.gamma * multiplier) / 2; // Inverted left-to-right tilt
+    // Mobile version: Use accelerometer
+    window.addEventListener('deviceorientation', (event) => {
+        const multiplier = 10; // Adjust this value to control sensitivity
+        const maxTilt = 30; // Maximum tilt in degrees
 
-                rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            });
-        } else {
+        let rotateX = -(event.beta * multiplier) / 2; // Inverted front-to-back tilt
+        let rotateY = -(event.gamma * multiplier) / 2; // Inverted left-to-right tilt
+
+        // Clamp values within the max tilt range
+        rotateX = Math.max(-maxTilt, Math.min(maxTilt, rotateX));
+        rotateY = Math.max(-maxTilt, Math.min(maxTilt, rotateY));
+
+        rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
+} 
+        else {
             // PC version: Use mouse movement
             rectangleContainer.addEventListener('mousemove', (event) => {
                 const rect = rectangleContainer.getBoundingClientRect();
