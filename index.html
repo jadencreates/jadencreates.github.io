@@ -16,7 +16,6 @@
             font-family: Arial, sans-serif;
             cursor: none; /* Initially hide cursor */
         }
-
         .intro {
             position: absolute;
             display: flex;
@@ -27,7 +26,6 @@
             background: black;
             z-index: 10;
         }
-
         .intro-circle {
             position: absolute;
             width: 150px;
@@ -43,16 +41,13 @@
             pointer-events: none;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
         }
-
         .intro-circle p {
             margin: 0;
         }
-
         .rectangle-container {
             perspective: 1000px;
             display: none;
         }
-
         .rectangle {
             width: 300px;
             height: 200px;
@@ -61,7 +56,6 @@
             transition: transform 0.5s;
             background: transparent;
         }
-
         .rectangle-inner {
             width: 100%;
             height: 100%;
@@ -70,7 +64,6 @@
             transform-origin: center;
             transition: transform 0.8s;
         }
-
         .front, .back {
             position: absolute;
             width: 100%;
@@ -81,11 +74,9 @@
             margin: 0;
             border: none;
         }
-
         .front {
             background: linear-gradient(135deg, #ff6a00, #ee0979);
         }
-
         .back {
             transform: rotateY(180deg);
             background: linear-gradient(135deg, #ee0979, #ff6a00);
@@ -96,12 +87,12 @@
             font-size: 1.2rem;
             color: white;
         }
-
         .info {
             position: absolute;
             bottom: 10px;
             left: 10px;
             color: white;
+            background: rgba(0, 0, 0, 0.6);
             padding: 5px 10px;
             border-radius: 5px;
             font-size: 0.9rem;
@@ -138,10 +129,9 @@
         let isClicked = false;
 
         document.addEventListener('mousemove', (event) => {
-            const x = event.clientX;
-            const y = event.clientY;
-
             if (!isClicked) {
+                const x = event.clientX;
+                const y = event.clientY;
                 introCircle.style.left = `${x - 75}px`;
                 introCircle.style.top = `${y - 75}px`;
             }
@@ -149,21 +139,19 @@
 
         intro.addEventListener('click', (event) => {
             isClicked = true;
-
             introCircle.querySelector('p').innerText = 'Card Revealed!';
             intro.style.display = 'none';
             rectangleContainer.style.display = 'flex';
             document.body.style.cursor = 'auto';
         });
 
+        // 3D Card Movement for Desktop
         rectangleContainer.addEventListener('mousemove', (event) => {
             const rect = rectangleContainer.getBoundingClientRect();
             const x = event.clientX - rect.left - rect.width / 2;
             const y = event.clientY - rect.top - rect.height / 2;
-
             const rotateX = -y / 10;
             const rotateY = x / 10;
-
             rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
         });
 
@@ -176,6 +164,17 @@
                 ? 'rotateY(0deg)'
                 : 'rotateY(180deg)';
         });
+
+        // 3D Card Movement for Mobile
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', (event) => {
+                if (isClicked) {
+                    const rotateX = event.beta; // front-to-back movement
+                    const rotateY = event.gamma; // left-to-right movement
+                    rectangle.style.transform = `rotateX(${-rotateX}deg) rotateY(${rotateY}deg)`;
+                }
+            });
+        }
     </script>
 </body>
 </html>
