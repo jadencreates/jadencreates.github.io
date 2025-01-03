@@ -163,8 +163,9 @@
     let initialGamma = 0;
     let calibrated = false;
 
-    const multiplier = 3; // Adjust this value to control sensitivity
-    const maxTilt = 30; // Maximum tilt in degrees
+    const multiplier = 5; // Adjust this value to control sensitivity
+    const maxTilt = 45; // Maximum tilt in degrees
+    const neutralThreshold = 2; // Threshold for detecting no motion
 
     // Function to calibrate the initial orientation
     const calibrateOrientation = (beta, gamma) => {
@@ -180,13 +181,29 @@
             calibrateOrientation(event.beta, event.gamma);
         }
 
-        let rotateX = -((event.beta - initialBeta) * multiplier) / 2; // Adjust for initial beta
-        let rotateY = -((event.gamma - initialGamma) * multiplier) / 2; // Adjust for initial gamma
+        const deltaBeta = event.beta - initialBeta;
+        const deltaGamma = event.gamma - initialGamma;
 
-        // Clamp values within the max tilt range
-        rotateX = Math.max(-maxTilt, Math.min(maxTilt, rotateX));
-        rotateY = Math.max(-maxTilt, Math.min(maxTilt, rotateY));
+        // Check if the device is in a neutral state
+        const isNeutral = Math.abs(deltaBeta) < neutralThreshold && Math.abs(deltaGamma) < neutralThreshold;
 
+        let rotateX, rotateY;
+
+        if (isNeutral) {
+            // Snap back to the center if no significant motion
+            rotateX = 0;
+            rotateY = 0;
+        } else {
+            // Adjust for initial orientation and apply multiplier
+            rotateX = -(deltaBeta * multiplier) / 2;
+            rotateY = -(deltaGamma * multiplier) / 2;
+
+            // Clamp values within the max tilt range
+            rotateX = Math.max(-maxTilt, Math.min(maxTilt, rotateX));
+            rotateY = Math.max(-maxTilt, Math.min(maxTilt, rotateY));
+        }
+
+        rectangle.style.transition = isNeutral ? "transform 0.3s ease" : "none"; // Smooth snap back when neutral
         rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
     });
 
@@ -195,8 +212,6 @@
         calibrated = false; // Reset calibration
     });
 }
-
-
         rectangle.addEventListener('click', () => {
             rectangleInner.style.transform = rectangleInner.style.transform === 'rotateY(180deg)'
                 ? 'rotateY(0deg)'
