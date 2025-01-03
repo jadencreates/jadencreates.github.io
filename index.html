@@ -133,6 +133,9 @@
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         const rectangle = document.getElementById('rectangle');
         const rectangleInner = document.getElementById('rectangleInner');
+        const introCircle = document.getElementById('introCircle');
+        const intro = document.getElementById('intro');
+        const rectangleContainer = document.getElementById('rectangleContainer');
 
         if (isMobile) {
             let initialBeta = 0;
@@ -184,8 +187,6 @@
             });
         } else {
             // PC version: Cursor movement handling
-            const rectangleContainer = document.getElementById('rectangleContainer');
-
             rectangleContainer.addEventListener('mousemove', (event) => {
                 const rect = rectangleContainer.getBoundingClientRect();
                 const x = event.clientX - rect.left - rect.width / 2;
@@ -211,10 +212,10 @@
             });
         }
 
-        // Reveal the card on click
-        document.getElementById('introCircle').addEventListener('click', () => {
-            document.getElementById('intro').style.display = 'none';
-            document.getElementById('rectangleContainer').style.display = 'block';
+        // Reveal the card on click or tap
+        introCircle.addEventListener('click', () => {
+            intro.style.display = 'none'; // Hide intro screen
+            rectangleContainer.style.display = 'block'; // Show card container
         });
     </script>
 </body>
