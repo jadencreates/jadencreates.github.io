@@ -163,7 +163,8 @@
     let initialGamma = 0;
     let calibrated = false;
 
-    const multiplier = 3; // Adjust this value to control sensitivity
+    const multiplierX = 3; // Sensitivity for left-right tilt (gamma)
+    const multiplierY = 2; // Sensitivity for front-back tilt (beta)
     const maxTilt = 30; // Maximum tilt in degrees
     const neutralThreshold = 2; // Threshold for detecting no motion
 
@@ -174,31 +175,29 @@
         calibrated = true;
     };
 
-    // Add device orientation listener
+    // Mobile orientation handling
     window.addEventListener('deviceorientation', (event) => {
         if (!calibrated) {
-            // Calibrate on the first reading
             calibrateOrientation(event.beta, event.gamma);
         }
 
         const deltaBeta = event.beta - initialBeta;
         const deltaGamma = event.gamma - initialGamma;
 
-        // Check if the device is in a neutral state
+        // Neutral state detection
         const isNeutral = Math.abs(deltaBeta) < neutralThreshold && Math.abs(deltaGamma) < neutralThreshold;
 
         let rotateX, rotateY;
 
         if (isNeutral) {
-            // Snap back to the center if no significant motion
             rotateX = 0;
             rotateY = 0;
         } else {
-            // Adjust for initial orientation and apply multiplier
-            rotateX = -(deltaBeta * multiplier) / 2;
-            rotateY = -(deltaGamma * multiplier) / 2;
+            // Adjust with independent multipliers
+            rotateX = -(deltaBeta * multiplierY) / 2;
+            rotateY = -(deltaGamma * multiplierX) / 2;
 
-            // Clamp values within the max tilt range
+            // Clamp values
             rotateX = Math.max(-maxTilt, Math.min(maxTilt, rotateX));
             rotateY = Math.max(-maxTilt, Math.min(maxTilt, rotateY));
         }
@@ -207,33 +206,31 @@
         rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
     });
 
-    // Add calibration on user interaction (e.g., a button or click event)
+    // Allow recalibration
     window.addEventListener('click', () => {
-        calibrated = false; // Reset calibration
+        calibrated = false;
     });
 } else {
-            // PC version: Use mouse movement
-            rectangleContainer.addEventListener('mousemove', (event) => {
-                const rect = rectangleContainer.getBoundingClientRect();
-                const x = event.clientX - rect.left - rect.width / 2;
-                const y = event.clientY - rect.top - rect.height / 2;
+    // PC version: Cursor movement handling
+    const rectangleContainer = document.getElementById('rectangleContainer');
 
-                const rotateX = -y / 10;
-                const rotateY = x / 10;
+    rectangleContainer.addEventListener('mousemove', (event) => {
+        const rect = rectangleContainer.getBoundingClientRect();
+        const x = event.clientX - rect.left - rect.width / 2;
+        const y = event.clientY - rect.top - rect.height / 2;
 
-                rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            });
+        const rotateX = -y / 10; // Adjust sensitivity for vertical movement
+        const rotateY = x / 10; // Adjust sensitivity for horizontal movement
 
-            rectangleContainer.addEventListener('mouseleave', () => {
-                rectangle.style.transform = 'rotateX(0deg) rotateY(0deg)';
-            });
-        }
+        rectangle.style.transition = "none"; // Immediate response to cursor movement
+        rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    });
 
-        rectangle.addEventListener('click', () => {
-            rectangleInner.style.transform = rectangleInner.style.transform === 'rotateY(180deg)'
-                ? 'rotateY(0deg)'
-                : 'rotateY(180deg)';
-        });
+    rectangleContainer.addEventListener('mouseleave', () => {
+        rectangle.style.transition = "transform 0.3s ease"; // Smooth return to center
+        rectangle.style.transform = `rotateX(0deg) rotateY(0deg)`;
+    });
+}
     </script>
 </body>
 </html>
