@@ -93,20 +93,30 @@
         .front {
             background: linear-gradient(135deg, #ff6a00, #ee0979);
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            justify-content: flex-end;
             align-items: center;
             color: white;
             font-size: 1.2rem;
+            padding: 10px;
+            text-align: center;
         }
 
         .back {
             transform: rotateY(180deg);
             background: linear-gradient(135deg, #ee0979, #ff6a00);
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            justify-content: flex-end;
             align-items: center;
             font-size: 1.2rem;
             color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .rectangle-container:hover .rectangle {
+            box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.5);
         }
     </style>
 </head>
@@ -122,7 +132,9 @@
     <div class="rectangle-container" id="rectangleContainer">
         <div class="rectangle" id="rectangle">
             <div class="rectangle-inner" id="rectangleInner">
-                <div class="front">Front Side</div>
+                <div class="front">
+                    <p>Front Side</p>
+                </div>
                 <div class="back">
                     <p>Click to recalibrate if not working correctly</p>
                 </div>
