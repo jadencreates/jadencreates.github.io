@@ -164,7 +164,7 @@
     let calibrated = false;
 
     const multiplier = 5; // Adjust this value to control sensitivity
-    const maxTilt = 5; // Maximum tilt in degrees
+    const maxTilt = 15; // Maximum tilt in degrees
     const neutralThreshold = 2; // Threshold for detecting no motion
 
     // Function to calibrate the initial orientation
@@ -203,7 +203,7 @@
             rotateY = Math.max(-maxTilt, Math.min(maxTilt, rotateY));
         }
 
-        rectangle.style.transition = isNeutral ? "transform 0.3s ease" : "none"; // Smooth snap back when neutral
+        rectangle.style.transition = isNeutral ? "transform 1s ease" : "none"; // Smooth snap back when neutral
         rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
     });
 
