@@ -59,7 +59,7 @@
             height: 200px;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.5s;
+            transition: transform 1s;
             background: transparent;
         }
 
@@ -69,7 +69,7 @@
             position: absolute;
             transform-style: preserve-3d;
             transform-origin: center;
-            transition: transform 0.8s;
+            transition: transform 1s;
         }
 
         .front, .back {
@@ -154,6 +154,7 @@
         const intro = document.getElementById('intro');
         const cursor = document.getElementById('cursor');
         const introCircle = document.getElementById('introCircle');
+        let isFlipped = false;
 
         // Variables for dragging the intro circle
         let isDragging = false;
@@ -191,6 +192,16 @@
         document.addEventListener('mouseup', () => {
             isDragging = false;
             introCircle.style.cursor = 'grab'; // Revert cursor when not dragging
+        });
+
+        // Flip the card on click
+        rectangle.addEventListener('click', () => {
+            if (!isFlipped) {
+                rectangle.style.transform = 'rotateY(180deg)';
+            } else {
+                rectangle.style.transform = 'rotateY(0deg)';
+            }
+            isFlipped = !isFlipped; // Toggle flipped state
         });
 
         // Mobile orientation handling
