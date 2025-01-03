@@ -57,11 +57,12 @@
     <script>
         const rectangle = document.getElementById('rectangle');
         let flipped = false;
+        let mouseRotation = { x: 0, y: 0 };
 
         // Flip rectangle on click/tap
         rectangle.addEventListener('click', () => {
             flipped = !flipped;
-            rectangle.classList.toggle('flipped', flipped);
+            updateTransform();
         });
 
         // Rotate rectangle based on mouse position (for PC)
@@ -71,19 +72,26 @@
             const centerY = rect.top + rect.height / 2;
             const deltaX = e.clientX - centerX;
             const deltaY = e.clientY - centerY;
-            const angleX = deltaY / 10;
-            const angleY = -deltaX / 10;
-            rectangle.style.transform = `rotateX(${angleX}deg) rotateY(${angleY}deg)`;
+            mouseRotation.x = deltaY / 10;
+            mouseRotation.y = -deltaX / 10;
+            updateTransform();
         });
 
         // Rotate rectangle based on accelerometer data (for mobile)
         if (window.DeviceOrientationEvent) {
             window.addEventListener('deviceorientation', (event) => {
                 const { beta, gamma } = event; // beta: front/back tilt, gamma: left/right tilt
-                const angleX = beta ? beta / 3 : 0;
-                const angleY = gamma ? gamma / 3 : 0;
-                rectangle.style.transform = `rotateX(${angleX}deg) rotateY(${angleY}deg)`;
+                mouseRotation.x = beta ? beta / 3 : 0;
+                mouseRotation.y = gamma ? gamma / 3 : 0;
+                updateTransform();
             });
+        }
+
+        // Update the transformation of the rectangle
+        function updateTransform() {
+            const flipRotation = flipped ? "rotateY(180deg)" : "rotateY(0deg)";
+            const mouseTransform = `rotateX(${mouseRotation.x}deg) rotateY(${mouseRotation.y}deg)`;
+            rectangle.style.transform = `${flipRotation} ${mouseTransform}`;
         }
     </script>
 </body>
