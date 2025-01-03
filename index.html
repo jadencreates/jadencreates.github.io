@@ -14,7 +14,7 @@
             background: black;
             overflow: hidden;
             font-family: Arial, sans-serif;
-            cursor: none; /* Initially hide cursor */
+            cursor: none;
         }
 
         .intro {
@@ -26,6 +26,8 @@
             width: 100%;
             background: black;
             z-index: 10;
+            opacity: 1;
+            transition: opacity 0.3s ease-out;
         }
 
         .intro-circle {
@@ -142,18 +144,17 @@
             let initialGamma = 0;
             let calibrated = false;
 
-            const multiplierX = 3; // Sensitivity for left-right tilt (gamma)
-            const multiplierY = 2; // Sensitivity for front-back tilt (beta)
-            const maxTilt = 30; // Maximum tilt in degrees
+            const multiplierX = 3;
+            const multiplierY = 2;
+            const maxTilt = 30;
+            const neutralThreshold = 2;
 
-            // Function to calibrate the initial orientation
             const calibrateOrientation = (beta, gamma) => {
                 initialBeta = beta;
                 initialGamma = gamma;
                 calibrated = true;
             };
 
-            // Mobile orientation handling
             window.addEventListener('deviceorientation', (event) => {
                 if (!calibrated) {
                     calibrateOrientation(event.beta, event.gamma);
@@ -161,61 +162,54 @@
 
                 const deltaBeta = event.beta - initialBeta;
                 const deltaGamma = event.gamma - initialGamma;
+                const isNeutral = Math.abs(deltaBeta) < neutralThreshold && Math.abs(deltaGamma) < neutralThreshold;
 
-                // Adjust with independent multipliers
-                let rotateX = -(deltaBeta * multiplierY) / 2;
-                let rotateY = -(deltaGamma * multiplierX) / 2;
+                let rotateX, rotateY;
 
-                // Clamp values
-                rotateX = Math.max(-maxTilt, Math.min(maxTilt, rotateX));
-                rotateY = Math.max(-maxTilt, Math.min(maxTilt, rotateY));
+                if (isNeutral) {
+                    rotateX = 0;
+                    rotateY = 0;
+                } else {
+                    rotateX = -(deltaBeta * multiplierY) / 2;
+                    rotateY = -(deltaGamma * multiplierX) / 2;
 
-                rectangle.style.transition = "none"; // Immediate response
+                    rotateX = Math.max(-maxTilt, Math.min(maxTilt, rotateX));
+                    rotateY = Math.max(-maxTilt, Math.min(maxTilt, rotateY));
+                }
+
+                rectangle.style.transition = isNeutral ? "transform 0.3s ease" : "none";
                 rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
             });
 
-            // Add click event for recalibration
             window.addEventListener('click', () => {
                 calibrated = false;
             });
-
-            // Add click event for flipping the card
-            rectangle.addEventListener('click', () => {
-                rectangleInner.style.transform = rectangleInner.style.transform === 'rotateY(180deg)'
-                    ? 'rotateY(0deg)'
-                    : 'rotateY(180deg)';
-            });
         } else {
-            // PC version: Cursor movement handling
             rectangleContainer.addEventListener('mousemove', (event) => {
                 const rect = rectangleContainer.getBoundingClientRect();
                 const x = event.clientX - rect.left - rect.width / 2;
                 const y = event.clientY - rect.top - rect.height / 2;
 
-                const rotateX = -y / 10; // Adjust sensitivity for vertical movement
-                const rotateY = x / 10; // Adjust sensitivity for horizontal movement
+                const rotateX = -y / 10;
+                const rotateY = x / 10;
 
-                rectangle.style.transition = "none"; // Immediate response to cursor movement
+                rectangle.style.transition = "none";
                 rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
             });
 
             rectangleContainer.addEventListener('mouseleave', () => {
-                rectangle.style.transition = "transform 0.3s ease"; // Smooth return to center
+                rectangle.style.transition = "transform 0.3s ease";
                 rectangle.style.transform = `rotateX(0deg) rotateY(0deg)`;
-            });
-
-            // Add click event for flipping the card
-            rectangle.addEventListener('click', () => {
-                rectangleInner.style.transform = rectangleInner.style.transform === 'rotateY(180deg)'
-                    ? 'rotateY(0deg)'
-                    : 'rotateY(180deg)';
             });
         }
 
-        // Reveal the card on click or tap
+        // Fade out the intro circle after click
         introCircle.addEventListener('click', () => {
-            intro.style.display = 'none'; // Hide intro screen
-            rectangleContainer.style.display = 'block'; // Show card container
+            intro.style.opacity = 0;
+            setTimeout(() => {
+                intro.style.display = 'none';
+                rectangleContainer.style.display = 'block';
+            }, 300);
         });
     </script>
 </body>
