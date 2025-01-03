@@ -17,43 +17,8 @@
             cursor: none;
         }
 
-        .intro {
-            position: absolute;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            width: 100%;
-            background: black;
-            z-index: 10;
-            opacity: 1;
-            transition: opacity 0.3s ease-out;
-        }
-
-        .intro-circle {
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1rem;
-            color: black;
-            text-align: center;
-            pointer-events: auto;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-            cursor: pointer; /* Ensures the circle is clickable */
-        }
-
-        .intro-circle p {
-            margin: 0;
-        }
-
         .rectangle-container {
             perspective: 1000px;
-            display: none; /* Hidden initially */
         }
 
         .rectangle {
@@ -113,12 +78,6 @@
     </style>
 </head>
 <body>
-    <div class="intro" id="intro">
-        <div class="intro-circle" id="introCircle">
-            <p>Click to reveal the card</p>
-        </div>
-    </div>
-
     <div class="rectangle-container" id="rectangleContainer">
         <div class="rectangle" id="rectangle">
             <div class="rectangle-inner" id="rectangleInner">
@@ -136,8 +95,6 @@
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         const rectangle = document.getElementById('rectangle');
         const rectangleInner = document.getElementById('rectangleInner');
-        const introCircle = document.getElementById('introCircle');
-        const intro = document.getElementById('intro');
         const rectangleContainer = document.getElementById('rectangleContainer');
 
         // Mobile orientation handling
@@ -205,16 +162,6 @@
                 rectangle.style.transform = `rotateX(0deg) rotateY(0deg)`;
             });
         }
-
-        // Fade out the intro circle after click and reveal the card
-        introCircle.addEventListener('click', () => {
-            intro.style.transition = "opacity 0.3s ease-out";
-            intro.style.opacity = 0;
-            setTimeout(() => {
-                intro.style.display = 'none'; // Hide the intro section
-                rectangleContainer.style.display = 'block'; // Show the card container
-            }, 300); // After fade-out
-        });
     </script>
 </body>
 </html>
