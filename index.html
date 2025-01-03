@@ -92,6 +92,11 @@
 
         .front {
             background: linear-gradient(135deg, #ff6a00, #ee0979);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.2rem;
         }
 
         .back {
@@ -117,7 +122,7 @@
     <div class="rectangle-container" id="rectangleContainer">
         <div class="rectangle" id="rectangle">
             <div class="rectangle-inner" id="rectangleInner">
-                <div class="front"></div>
+                <div class="front">Front Side</div>
                 <div class="back">
                     <p>Click to recalibrate if not working correctly</p>
                 </div>
@@ -129,6 +134,8 @@
         const customPointer = document.getElementById('customPointer');
         const intro = document.getElementById('intro');
         const rectangleContainer = document.getElementById('rectangleContainer');
+        const rectangle = document.getElementById('rectangle');
+        const rectangleInner = document.getElementById('rectangleInner');
 
         // Update custom pointer position on mousemove
         window.addEventListener('mousemove', (event) => {
@@ -148,6 +155,31 @@
         intro.addEventListener('click', () => {
             intro.style.display = 'none';
             rectangleContainer.style.display = 'flex';
+        });
+
+        // Handle card flip on click
+        rectangle.addEventListener('click', () => {
+            rectangleInner.style.transform = rectangleInner.style.transform === 'rotateY(180deg)'
+                ? 'rotateY(0deg)'
+                : 'rotateY(180deg)';
+        });
+
+        // Add tilt functionality on mouse move
+        rectangleContainer.addEventListener('mousemove', (event) => {
+            const rect = rectangleContainer.getBoundingClientRect();
+            const x = event.clientX - rect.left - rect.width / 2;
+            const y = event.clientY - rect.top - rect.height / 2;
+
+            const rotateX = -y / 10; // Adjust sensitivity for vertical movement
+            const rotateY = x / 10; // Adjust sensitivity for horizontal movement
+
+            rectangle.style.transition = "none"; // Immediate response to cursor movement
+            rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        rectangleContainer.addEventListener('mouseleave', () => {
+            rectangle.style.transition = "transform 0.3s ease"; // Smooth return to center
+            rectangle.style.transform = `rotateX(0deg) rotateY(0deg)`;
         });
     </script>
 </body>
