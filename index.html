@@ -42,8 +42,9 @@
             font-size: 1rem;
             color: black;
             text-align: center;
-            pointer-events: none;
+            pointer-events: auto;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            cursor: pointer; /* Ensures the circle is clickable */
         }
 
         .intro-circle p {
@@ -52,7 +53,7 @@
 
         .rectangle-container {
             perspective: 1000px;
-            display: none;
+            display: none; /* Hidden initially */
         }
 
         .rectangle {
@@ -139,6 +140,7 @@
         const intro = document.getElementById('intro');
         const rectangleContainer = document.getElementById('rectangleContainer');
 
+        // Mobile orientation handling
         if (isMobile) {
             let initialBeta = 0;
             let initialGamma = 0;
@@ -185,6 +187,7 @@
                 calibrated = false;
             });
         } else {
+            // PC version: Cursor movement handling
             rectangleContainer.addEventListener('mousemove', (event) => {
                 const rect = rectangleContainer.getBoundingClientRect();
                 const x = event.clientX - rect.left - rect.width / 2;
@@ -203,13 +206,14 @@
             });
         }
 
-        // Fade out the intro circle after click
+        // Fade out the intro circle after click and reveal the card
         introCircle.addEventListener('click', () => {
+            intro.style.transition = "opacity 0.3s ease-out";
             intro.style.opacity = 0;
             setTimeout(() => {
-                intro.style.display = 'none';
-                rectangleContainer.style.display = 'block';
-            }, 300);
+                intro.style.display = 'none'; // Hide the intro section
+                rectangleContainer.style.display = 'block'; // Show the card container
+            }, 300); // After fade-out
         });
     </script>
 </body>
