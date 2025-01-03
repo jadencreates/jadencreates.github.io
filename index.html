@@ -131,6 +131,8 @@
 
     <script>
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const rectangle = document.getElementById('rectangle');
+        const rectangleInner = document.getElementById('rectangleInner');
 
         if (isMobile) {
             let initialBeta = 0;
@@ -208,6 +210,12 @@
                     : 'rotateY(180deg)';
             });
         }
+
+        // Reveal the card on click
+        document.getElementById('introCircle').addEventListener('click', () => {
+            document.getElementById('intro').style.display = 'none';
+            document.getElementById('rectangleContainer').style.display = 'block';
+        });
     </script>
 </body>
 </html>
