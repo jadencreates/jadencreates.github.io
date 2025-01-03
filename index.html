@@ -153,7 +153,240 @@
                 <div class="front">
                     <p>Front Side</p>
                     <!-- Embed Spotify player on the front of the card -->
-                    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/50LW54x2WLpiYMONHRJKEV?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+                    <!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive 3D Card with Custom Pointer and Spotify</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: black;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            cursor: none; /* Hide cursor by default */
+        }
+
+        /* Custom pointer */
+        .custom-pointer {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border: 2px solid white;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+            z-index: 100;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Intro screen styling */
+        .intro {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+            background: black;
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        .intro-circle {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1rem;
+            color: black;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Rectangle container */
+        .rectangle-container {
+            perspective: 1000px;
+            display: none;
+        }
+
+        .rectangle {
+            width: 300px;
+            height: 200px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            background: transparent;
+        }
+
+        .rectangle-inner {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transform-origin: center;
+            transition: transform 0.8s;
+        }
+
+        .front, .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            margin: 0;
+            border: none;
+        }
+
+        .front {
+            background: linear-gradient(135deg, #ff6a00, #ee0979);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            color: white;
+            font-size: 1.2rem;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .back {
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, #ee0979, #ff6a00);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            font-size: 1.2rem;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        /* Mobile-specific styles to hide the cursor */
+        @media (max-width: 768px) {
+            body {
+                cursor: none; /* Hide cursor on mobile */
+            }
+        }
+
+        /* Styling for the embedded Spotify player */
+        .spotify-embed {
+            width: 100%;
+            height: 80px;
+            border: none;
+            position: absolute;
+            bottom: 10px; /* Position the Spotify player at the bottom of the front side */
+            pointer-events: none; /* Prevent iframe from blocking mouse events */
+        }
+    </style>
+</head>
+<body>
+    <div class="custom-pointer" id="customPointer"></div>
+
+    <div class="intro" id="intro">
+        <div class="intro-circle" id="introCircle">
+            <p>Click to reveal the card</p>
+        </div>
+    </div>
+
+    <div class="rectangle-container" id="rectangleContainer">
+        <div class="rectangle" id="rectangle">
+            <div class="rectangle-inner" id="rectangleInner">
+                <div class="front">
+                    <p>Front Side</p>
+                    <!-- Embed Spotify player on the front of the card -->
+                    <iframe src="https://open.spotify.com/embed/track/4c4ZkYs5sH3BwDQy3tKlBS?utm_source=generator" class="spotify-embed" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+                </div>
+                <div class="back">
+                    <p>Click to recalibrate if not working correctly</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const customPointer = document.getElementById('customPointer');
+        const intro = document.getElementById('intro');
+        const introCircle = document.getElementById('introCircle');
+        const rectangleContainer = document.getElementById('rectangleContainer');
+        const rectangle = document.getElementById('rectangle');
+        const rectangleInner = document.getElementById('rectangleInner');
+
+        // Update custom pointer position on mousemove
+        window.addEventListener('mousemove', (event) => {
+            const { clientX, clientY } = event;
+            customPointer.style.left = `${clientX}px`;
+            customPointer.style.top = `${clientY}px`;
+        });
+
+        // Show the pointer on touch devices when tapping
+        window.addEventListener('touchstart', (event) => {
+            const touch = event.touches[0];
+            customPointer.style.left = `${touch.clientX}px`;
+            customPointer.style.top = `${touch.clientY}px`;
+        });
+
+        // Handle click to hide intro and show card
+        intro.addEventListener('click', () => {
+            intro.style.display = 'none';
+            rectangleContainer.style.display = 'flex';
+        });
+
+        // Handle card flip on click
+        rectangle.addEventListener('click', () => {
+            rectangleInner.style.transform = rectangleInner.style.transform === 'rotateY(180deg)'
+                ? 'rotateY(0deg)'
+                : 'rotateY(180deg)';
+        });
+
+        // Add tilt functionality on mouse move (for desktop)
+        rectangleContainer.addEventListener('mousemove', (event) => {
+            const rect = rectangleContainer.getBoundingClientRect();
+            const x = event.clientX - rect.left - rect.width / 2;
+            const y = event.clientY - rect.top - rect.height / 2;
+
+            const rotateX = -y / 10; // Adjust sensitivity for vertical movement
+            const rotateY = x / 10; // Adjust sensitivity for horizontal movement
+
+            rectangle.style.transition = "none"; // Immediate response to cursor movement
+            rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        // Add tilt functionality for touch events (for mobile)
+        rectangleContainer.addEventListener('touchmove', (event) => {
+            const rect = rectangleContainer.getBoundingClientRect();
+            const touch = event.touches[0];
+            const x = touch.clientX - rect.left - rect.width / 2;
+            const y = touch.clientY - rect.top - rect.height / 2;
+
+            const rotateX = -y / 10; // Adjust sensitivity for vertical movement
+            const rotateY = x / 10; // Adjust sensitivity for horizontal movement
+
+            rectangle.style.transition = "none"; // Immediate response to cursor movement
+            rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        rectangleContainer.addEventListener('mouseleave', () => {
+            rectangle.style.transition = "transform 0.3s ease"; // Smooth return to center
+            rectangle.style.transform = `rotateX(0deg) rotateY(0deg)`;
+        });
+    </script>
+</body>
+</html>
+
                 </div>
                 <div class="back">
                     <p>Click to recalibrate if not working correctly</p>
