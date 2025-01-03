@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive 3D Card</title>
+    <title>Interactive 3D Rectangle</title>
     <style>
         body {
             margin: 0;
@@ -14,44 +14,10 @@
             background: black;
             overflow: hidden;
             font-family: Arial, sans-serif;
-            cursor: none; /* Initially hide cursor */
-        }
-
-        .intro {
-            position: absolute;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            width: 100%;
-            background: black;
-            z-index: 10;
-        }
-
-        .intro-circle {
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1rem;
-            color: black;
-            text-align: center;
-            pointer-events: all; /* Allow interaction with the circle */
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-            cursor: grab; /* Indicate it's draggable */
-        }
-
-        .intro-circle p {
-            margin: 0;
         }
 
         .rectangle-container {
             perspective: 1000px;
-            display: none; /* Initially hidden */
         }
 
         .rectangle {
@@ -59,214 +25,74 @@
             height: 200px;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 1s;
-            background: transparent;
+            transition: transform 0.1s ease-out;
+            background: linear-gradient(135deg, #ff6a00, #ee0979);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
         }
 
-        .rectangle-inner {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            transform-style: preserve-3d;
-            transform-origin: center;
-            transition: transform 1s;
-        }
-
+        /* Front and back faces of the rectangle */
         .front, .back {
             position: absolute;
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
             border-radius: 10px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-            margin: 0;
-            border: none;
         }
 
         .front {
-            background: linear-gradient(135deg, #ff6a00, #ee0979);
+            background: #ff6a00;
         }
 
         .back {
             transform: rotateY(180deg);
-            background: linear-gradient(135deg, #ee0979, #ff6a00);
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.2rem;
-            color: white;
-        }
-
-        .info {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            color: white;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-        }
-
-        /* Custom cursor */
-        .cursor {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            background: white;
-            border-radius: 50%;
-            pointer-events: none;
-            transition: transform 0.1s ease-out;
-            transform: translate(-50%, -50%);
+            background: #ee0979;
         }
     </style>
 </head>
 <body>
-    <!-- Intro Screen -->
-    <div class="intro" id="intro">
-        <div class="intro-circle" id="introCircle">
-            <p>Click to reveal the card</p>
-        </div>
-    </div>
-
-    <!-- Rectangle 3D Card -->
-    <div class="rectangle-container" id="rectangleContainer">
+    <div class="rectangle-container">
         <div class="rectangle" id="rectangle">
-            <div class="rectangle-inner" id="rectangleInner">
-                <div class="front">
-                    <div class="info">Hover to tilt the card!</div>
-                </div>
-                <div class="back">
-                    <p>Click to recalibrate if not working correctly</p>
-                </div>
-            </div>
+            <div class="front"></div>
+            <div class="back"></div>
         </div>
     </div>
-
-    <!-- Custom Cursor -->
-    <div class="cursor" id="cursor"></div>
 
     <script>
-        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         const rectangle = document.getElementById('rectangle');
-        const rectangleContainer = document.getElementById('rectangleContainer');
-        const intro = document.getElementById('intro');
-        const cursor = document.getElementById('cursor');
-        const introCircle = document.getElementById('introCircle');
-        let isFlipped = false;
 
-        // Variables for dragging the intro circle
-        let isDragging = false;
-        let offsetX, offsetY;
-
-        // Click to reveal card and hide intro
-        intro.addEventListener('click', () => {
-            intro.style.display = 'none';
-            rectangleContainer.style.display = 'block';
-        });
-
-        // Update custom cursor position
-        document.addEventListener('mousemove', (event) => {
-            cursor.style.left = event.pageX + 'px';
-            cursor.style.top = event.pageY + 'px';
-        });
-
-        // Dragging the intro circle
-        introCircle.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            offsetX = e.clientX - introCircle.getBoundingClientRect().left;
-            offsetY = e.clientY - introCircle.getBoundingClientRect().top;
-            introCircle.style.cursor = 'grabbing'; // Change cursor during dragging
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                const x = e.clientX - offsetX;
-                const y = e.clientY - offsetY;
-                introCircle.style.left = `${x}px`;
-                introCircle.style.top = `${y}px`;
-            }
-        });
-
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
-            introCircle.style.cursor = 'grab'; // Revert cursor when not dragging
-        });
-
-        // Flip the card on click
-        rectangle.addEventListener('click', () => {
-            if (!isFlipped) {
-                rectangle.style.transform = 'rotateY(180deg)';
-            } else {
-                rectangle.style.transform = 'rotateY(0deg)';
-            }
-            isFlipped = !isFlipped; // Toggle flipped state
-        });
-
-        // Mobile orientation handling
-        if (isMobile) {
+        // For mobile: Use accelerometer (deviceorientation)
+        if (window.DeviceOrientationEvent) {
             let initialBeta = 0;
             let initialGamma = 0;
             let calibrated = false;
 
-            const multiplierX = 3;
-            const multiplierY = 2;
-            const maxTilt = 30;
-            const neutralThreshold = 2;
-
-            const calibrateOrientation = (beta, gamma) => {
-                initialBeta = beta;
-                initialGamma = gamma;
-                calibrated = true;
-            };
-
             window.addEventListener('deviceorientation', (event) => {
                 if (!calibrated) {
-                    calibrateOrientation(event.beta, event.gamma);
+                    initialBeta = event.beta;
+                    initialGamma = event.gamma;
+                    calibrated = true;
                 }
 
                 const deltaBeta = event.beta - initialBeta;
                 const deltaGamma = event.gamma - initialGamma;
-                const isNeutral = Math.abs(deltaBeta) < neutralThreshold && Math.abs(deltaGamma) < neutralThreshold;
 
-                let rotateX, rotateY;
+                // Apply rotation based on accelerometer data
+                const rotateX = deltaBeta * 0.5;  // Adjust sensitivity for vertical tilt
+                const rotateY = deltaGamma * 0.5;  // Adjust sensitivity for horizontal tilt
 
-                if (isNeutral) {
-                    rotateX = 0;
-                    rotateY = 0;
-                } else {
-                    rotateX = -(deltaBeta * multiplierY) / 2;
-                    rotateY = -(deltaGamma * multiplierX) / 2;
-
-                    rotateX = Math.max(-maxTilt, Math.min(maxTilt, rotateX));
-                    rotateY = Math.max(-maxTilt, Math.min(maxTilt, rotateY));
-                }
-
-                rectangle.style.transition = isNeutral ? "transform 0.3s ease" : "none";
                 rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            });
-
-            window.addEventListener('click', () => {
-                calibrated = false;
             });
         } else {
-            // PC version: Cursor movement handling
-            rectangleContainer.addEventListener('mousemove', (event) => {
-                const rect = rectangleContainer.getBoundingClientRect();
-                const x = event.clientX - rect.left - rect.width / 2;
-                const y = event.clientY - rect.top - rect.height / 2;
+            // For PC: Use mouse movement
+            document.addEventListener('mousemove', (event) => {
+                const x = event.clientX - window.innerWidth / 2;
+                const y = event.clientY - window.innerHeight / 2;
 
-                const rotateX = -y / 10;
-                const rotateY = x / 10;
+                // Apply rotation based on mouse position
+                const rotateX = -y / 10;  // Adjust sensitivity for vertical movement
+                const rotateY = x / 10;   // Adjust sensitivity for horizontal movement
 
-                rectangle.style.transition = "none";
                 rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            });
-
-            rectangleContainer.addEventListener('mouseleave', () => {
-                rectangle.style.transition = "transform 0.3s ease";
-                rectangle.style.transform = `rotateX(0deg) rotateY(0deg)`;
             });
         }
     </script>
