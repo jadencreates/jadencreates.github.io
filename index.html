@@ -40,8 +40,9 @@
             font-size: 1rem;
             color: black;
             text-align: center;
-            pointer-events: none;
+            pointer-events: all; /* Allow interaction with the circle */
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            cursor: grab; /* Indicate it's draggable */
         }
 
         .intro-circle p {
@@ -154,6 +155,10 @@
         const cursor = document.getElementById('cursor');
         const introCircle = document.getElementById('introCircle');
 
+        // Variables for dragging the intro circle
+        let isDragging = false;
+        let offsetX, offsetY;
+
         // Click to reveal card and hide intro
         intro.addEventListener('click', () => {
             intro.style.display = 'none';
@@ -164,6 +169,28 @@
         document.addEventListener('mousemove', (event) => {
             cursor.style.left = event.pageX + 'px';
             cursor.style.top = event.pageY + 'px';
+        });
+
+        // Dragging the intro circle
+        introCircle.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            offsetX = e.clientX - introCircle.getBoundingClientRect().left;
+            offsetY = e.clientY - introCircle.getBoundingClientRect().top;
+            introCircle.style.cursor = 'grabbing'; // Change cursor during dragging
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const x = e.clientX - offsetX;
+                const y = e.clientY - offsetY;
+                introCircle.style.left = `${x}px`;
+                introCircle.style.top = `${y}px`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            introCircle.style.cursor = 'grab'; // Revert cursor when not dragging
         });
 
         // Mobile orientation handling
