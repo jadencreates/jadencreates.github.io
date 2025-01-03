@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -54,6 +54,12 @@
             color: black;
             text-align: center;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.5s ease, opacity 0.3s ease;
+        }
+
+        .burst-animation {
+            transform: scale(0) rotate(180deg);
+            opacity: 0;
         }
 
         .rectangle-container {
@@ -114,10 +120,6 @@
             padding: 10px;
             text-align: center;
         }
-
-        .rectangle-container:hover .rectangle {
-            box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.5);
-        }
     </style>
 </head>
 <body>
@@ -145,6 +147,7 @@
     <script>
         const customPointer = document.getElementById('customPointer');
         const intro = document.getElementById('intro');
+        const introCircle = document.getElementById('introCircle');
         const rectangleContainer = document.getElementById('rectangleContainer');
         const rectangle = document.getElementById('rectangle');
         const rectangleInner = document.getElementById('rectangleInner');
@@ -163,10 +166,13 @@
             customPointer.style.top = `${touch.clientY}px`;
         });
 
-        // Handle click to hide intro and show card
+        // Handle click to hide intro and show card with burst animation
         intro.addEventListener('click', () => {
-            intro.style.display = 'none';
-            rectangleContainer.style.display = 'flex';
+            introCircle.classList.add('burst-animation'); // Trigger burst animation
+            setTimeout(() => {
+                intro.style.display = 'none';
+                rectangleContainer.style.display = 'flex';
+            }, 500); // Wait for the animation to finish before displaying the card
         });
 
         // Handle card flip on click
