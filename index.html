@@ -120,117 +120,94 @@
         <div class="rectangle" id="rectangle">
             <div class="rectangle-inner" id="rectangleInner">
                 <div class="front">
-                    <div class="info">Tilt or hover to interact!</div>
+                    <div class="info">Hover to tilt the card!</div>
                 </div>
                 <div class="back">
-                    <p>Back Side Text</p>
+                    <p>Click to recalibrate if not working correctly</p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const intro = document.getElementById('intro');
-        const introCircle = document.getElementById('introCircle');
-        const rectangleContainer = document.getElementById('rectangleContainer');
-        const rectangle = document.getElementById('rectangle');
-        const rectangleInner = document.getElementById('rectangleInner');
-
-        let isClicked = false;
-        let isMobile = /Mobi|Android/i.test(navigator.userAgent);
-
-        document.addEventListener('mousemove', (event) => {
-            const x = event.clientX;
-            const y = event.clientY;
-
-            if (!isClicked) {
-                introCircle.style.left = `${x - 75}px`;
-                introCircle.style.top = `${y - 75}px`;
-            }
-        });
-
-        intro.addEventListener('click', () => {
-            isClicked = true;
-
-            introCircle.querySelector('p').innerText = 'Card Revealed!';
-            intro.style.display = 'none';
-            rectangleContainer.style.display = 'flex';
-            document.body.style.cursor = 'auto';
-        });
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
         if (isMobile) {
-    let initialBeta = 0;
-    let initialGamma = 0;
-    let calibrated = false;
+            let initialBeta = 0;
+            let initialGamma = 0;
+            let calibrated = false;
 
-    const multiplierX = 3; // Sensitivity for left-right tilt (gamma)
-    const multiplierY = 2; // Sensitivity for front-back tilt (beta)
-    const maxTilt = 15; // Maximum tilt in degrees
-    const neutralThreshold = 2; // Threshold for detecting no motion
+            const multiplierX = 3; // Sensitivity for left-right tilt (gamma)
+            const multiplierY = 2; // Sensitivity for front-back tilt (beta)
+            const maxTilt = 30; // Maximum tilt in degrees
 
-    // Function to calibrate the initial orientation
-    const calibrateOrientation = (beta, gamma) => {
-        initialBeta = beta;
-        initialGamma = gamma;
-        calibrated = true;
-    };
+            // Function to calibrate the initial orientation
+            const calibrateOrientation = (beta, gamma) => {
+                initialBeta = beta;
+                initialGamma = gamma;
+                calibrated = true;
+            };
 
-    // Mobile orientation handling
-    window.addEventListener('deviceorientation', (event) => {
-        if (!calibrated) {
-            calibrateOrientation(event.beta, event.gamma);
-        }
+            // Mobile orientation handling
+            window.addEventListener('deviceorientation', (event) => {
+                if (!calibrated) {
+                    calibrateOrientation(event.beta, event.gamma);
+                }
 
-        const deltaBeta = event.beta - initialBeta;
-        const deltaGamma = event.gamma - initialGamma;
+                const deltaBeta = event.beta - initialBeta;
+                const deltaGamma = event.gamma - initialGamma;
 
-        // Neutral state detection
-        const isNeutral = Math.abs(deltaBeta) < neutralThreshold && Math.abs(deltaGamma) < neutralThreshold;
+                // Adjust with independent multipliers
+                let rotateX = -(deltaBeta * multiplierY) / 2;
+                let rotateY = -(deltaGamma * multiplierX) / 2;
 
-        let rotateX, rotateY;
+                // Clamp values
+                rotateX = Math.max(-maxTilt, Math.min(maxTilt, rotateX));
+                rotateY = Math.max(-maxTilt, Math.min(maxTilt, rotateY));
 
-        if (isNeutral) {
-            rotateX = 0;
-            rotateY = 0;
+                rectangle.style.transition = "none"; // Immediate response
+                rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            // Add click event for recalibration
+            window.addEventListener('click', () => {
+                calibrated = false;
+            });
+
+            // Add click event for flipping the card
+            rectangle.addEventListener('click', () => {
+                rectangleInner.style.transform = rectangleInner.style.transform === 'rotateY(180deg)'
+                    ? 'rotateY(0deg)'
+                    : 'rotateY(180deg)';
+            });
         } else {
-            // Adjust with independent multipliers
-            rotateX = -(deltaBeta * multiplierY) / 2;
-            rotateY = -(deltaGamma * multiplierX) / 2;
+            // PC version: Cursor movement handling
+            const rectangleContainer = document.getElementById('rectangleContainer');
 
-            // Clamp values
-            rotateX = Math.max(-maxTilt, Math.min(maxTilt, rotateX));
-            rotateY = Math.max(-maxTilt, Math.min(maxTilt, rotateY));
+            rectangleContainer.addEventListener('mousemove', (event) => {
+                const rect = rectangleContainer.getBoundingClientRect();
+                const x = event.clientX - rect.left - rect.width / 2;
+                const y = event.clientY - rect.top - rect.height / 2;
+
+                const rotateX = -y / 10; // Adjust sensitivity for vertical movement
+                const rotateY = x / 10; // Adjust sensitivity for horizontal movement
+
+                rectangle.style.transition = "none"; // Immediate response to cursor movement
+                rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            rectangleContainer.addEventListener('mouseleave', () => {
+                rectangle.style.transition = "transform 0.3s ease"; // Smooth return to center
+                rectangle.style.transform = `rotateX(0deg) rotateY(0deg)`;
+            });
+
+            // Add click event for flipping the card
+            rectangle.addEventListener('click', () => {
+                rectangleInner.style.transform = rectangleInner.style.transform === 'rotateY(180deg)'
+                    ? 'rotateY(0deg)'
+                    : 'rotateY(180deg)';
+            });
         }
-
-        rectangle.style.transition = isNeutral ? "transform 0.3s ease" : "none"; // Smooth snap back when neutral
-        rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-    });
-
-    // Allow recalibration
-    window.addEventListener('click', () => {
-        calibrated = false;
-    });
-} else {
-    // PC version: Cursor movement handling
-    const rectangleContainer = document.getElementById('rectangleContainer');
-
-    rectangleContainer.addEventListener('mousemove', (event) => {
-        const rect = rectangleContainer.getBoundingClientRect();
-        const x = event.clientX - rect.left - rect.width / 2;
-        const y = event.clientY - rect.top - rect.height / 2;
-
-        const rotateX = -y / 10; // Adjust sensitivity for vertical movement
-        const rotateY = x / 10; // Adjust sensitivity for horizontal movement
-
-        rectangle.style.transition = "none"; // Immediate response to cursor movement
-        rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-    });
-
-    rectangleContainer.addEventListener('mouseleave', () => {
-        rectangle.style.transition = "transform 0.3s ease"; // Smooth return to center
-        rectangle.style.transform = `rotateX(0deg) rotateY(0deg)`;
-    });
-}
     </script>
 </body>
 </html>
