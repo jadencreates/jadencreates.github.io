@@ -159,13 +159,29 @@
         });
 
         if (isMobile) {
-    // Mobile version: Use accelerometer
-    window.addEventListener('deviceorientation', (event) => {
-        const multiplier = 10; // Adjust this value to control sensitivity
-        const maxTilt = 30; // Maximum tilt in degrees
+    let initialBeta = 0;
+    let initialGamma = 0;
+    let calibrated = false;
 
-        let rotateX = -(event.beta * multiplier) / 2; // Inverted front-to-back tilt
-        let rotateY = -(event.gamma * multiplier) / 2; // Inverted left-to-right tilt
+    const multiplier = 3; // Adjust this value to control sensitivity
+    const maxTilt = 30; // Maximum tilt in degrees
+
+    // Function to calibrate the initial orientation
+    const calibrateOrientation = (beta, gamma) => {
+        initialBeta = beta;
+        initialGamma = gamma;
+        calibrated = true;
+    };
+
+    // Add device orientation listener
+    window.addEventListener('deviceorientation', (event) => {
+        if (!calibrated) {
+            // Calibrate on the first reading
+            calibrateOrientation(event.beta, event.gamma);
+        }
+
+        let rotateX = -((event.beta - initialBeta) * multiplier) / 2; // Adjust for initial beta
+        let rotateY = -((event.gamma - initialGamma) * multiplier) / 2; // Adjust for initial gamma
 
         // Clamp values within the max tilt range
         rotateX = Math.max(-maxTilt, Math.min(maxTilt, rotateX));
@@ -173,24 +189,13 @@
 
         rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
     });
-} 
-        else {
-            // PC version: Use mouse movement
-            rectangleContainer.addEventListener('mousemove', (event) => {
-                const rect = rectangleContainer.getBoundingClientRect();
-                const x = event.clientX - rect.left - rect.width / 2;
-                const y = event.clientY - rect.top - rect.height / 2;
 
-                const rotateX = -y / 10;
-                const rotateY = x / 10;
+    // Add calibration on user interaction (e.g., a button or click event)
+    window.addEventListener('click', () => {
+        calibrated = false; // Reset calibration
+    });
+}
 
-                rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            });
-
-            rectangleContainer.addEventListener('mouseleave', () => {
-                rectangle.style.transform = 'rotateX(0deg) rotateY(0deg)';
-            });
-        }
 
         rectangle.addEventListener('click', () => {
             rectangleInner.style.transform = rectangleInner.style.transform === 'rotateY(180deg)'
