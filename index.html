@@ -7,6 +7,7 @@
     <style>
         * {
             cursor: none;
+            box-sizing: border-box;
         }
 
         body {
@@ -32,6 +33,33 @@
             transition: transform 0.1s ease;
         }
 
+        .story-progress {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+            z-index: 1000;
+            width: 80%;
+            max-width: 400px;
+        }
+
+        .progress-bar {
+            height: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            flex: 1;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: #fff;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
         .carousel-container {
             width: 100%;
             max-width: 1400px;
@@ -50,6 +78,7 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
             padding: 20px;
+            transition: all 0.3s ease;
         }
 
         .carousel::-webkit-scrollbar {
@@ -66,10 +95,14 @@
             perspective: 1000px;
             transform-style: preserve-3d;
             transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            filter: blur(4px) brightness(0.7);
+            opacity: 0.7;
         }
 
-        .card:hover {
-            transform: translateY(-10px);
+        .card.active {
+            filter: blur(0) brightness(1);
+            opacity: 1;
+            transform: scale(1.05);
         }
 
         .card.expanded {
@@ -178,6 +211,7 @@
 </head>
 <body>
     <div id="custom-cursor"></div>
+    <div class="story-progress"></div>
     <div class="carousel-container">
         <div class="carousel">
             <div class="card" id="card1">
@@ -239,19 +273,38 @@
     </div>
 
     <script>
-        // Custom cursor
         const cursor = document.getElementById('custom-cursor');
         const cards = document.querySelectorAll('.card');
         const carousel = document.querySelector('.carousel');
         const prevBtn = document.getElementById('prev');
         const nextBtn = document.getElementById('next');
+        const storyProgress = document.querySelector('.story-progress');
+        let currentCardIndex = 0;
 
+        // Create progress bars
+        cards.forEach((_, index) => {
+            const bar = document.createElement('div');
+            bar.className = 'progress-bar';
+            const fill = document.createElement('div');
+            fill.className = 'progress-bar-fill';
+            bar.appendChild(fill);
+            storyProgress.appendChild(bar);
+        });
+
+        // Update progress bars
+        function updateProgress(index) {
+            const fills = document.querySelectorAll('.progress-bar-fill');
+            fills.forEach((fill, i) => {
+                fill.style.width = i <= index ? '100%' : '0%';
+            });
+        }
+
+        // Custom cursor
         document.addEventListener('mousemove', (e) => {
             cursor.style.left = e.clientX - cursor.offsetWidth / 2 + 'px';
             cursor.style.top = e.clientY - cursor.offsetHeight / 2 + 'px';
         });
 
-        // Expand cursor on interactive elements
         document.querySelectorAll('.card, .nav-btn').forEach(element => {
             element.addEventListener('mouseenter', () => {
                 cursor.style.transform = 'scale(1.5)';
@@ -261,53 +314,80 @@
             });
         });
 
-        // 3D card effect
+        // Gyroscope handling
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', (e) => {
+                const activeCard = document.querySelector('.card.active');
+                if (activeCard && !activeCard.classList.contains('expanded')) {
+                    const tiltX = (e.beta - 45) / 2; // Adjust for natural phone holding position
+                    const tiltY = e.gamma / 2;
+                    activeCard.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1.05)`;
+                }
+            });
+        }
+
+        // 3D card effect for desktop
         cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
-                if (!card.classList.contains('expanded')) {
+                if (card.classList.contains('active') && !card.classList.contains('expanded')) {
                     const rect = card.getBoundingClientRect();
                     const x = e.clientX - rect.left;
                     const y = e.clientY - rect.top;
-                    
                     const centerX = rect.width / 2;
                     const centerY = rect.height / 2;
-                    
                     const rotateX = (y - centerY) / 15;
                     const rotateY = -(x - centerX) / 15;
-
-                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
                 }
             });
 
             card.addEventListener('mouseleave', () => {
-                if (!card.classList.contains('expanded')) {
-                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+                if (card.classList.contains('active') && !card.classList.contains('expanded')) {
+                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1.05)';
                 }
             });
         });
 
-        // Card flip functionality
-        cards.forEach(card => {
-            card.addEventListener('click', () => {
-                cards.forEach(c => {
-                    if (c !== card) c.classList.remove('expanded');
-                });
-                card.classList.toggle('expanded');
+        // Focus and blur effects
+        function updateActiveCard() {
+            cards.forEach((card, index) => {
+                card.classList.toggle('active', index === currentCardIndex);
             });
-        });
+            updateProgress(currentCardIndex);
+        }
 
-        // Smooth scrolling navigation
+        // Initialize first card as active
+        updateActiveCard();
+
+        // Smooth scrolling navigation with focus update
         function scrollToCard(direction) {
             const cardWidth = cards[0].offsetWidth + 30;
-            const scrollAmount = direction === 'next' ? cardWidth : -cardWidth;
-            carousel.scrollBy({
-                left: scrollAmount,
+            if (direction === 'next' && currentCardIndex < cards.length - 1) {
+                currentCardIndex++;
+            } else if (direction === 'prev' && currentCardIndex > 0) {
+                currentCardIndex--;
+            }
+            carousel.scrollTo({
+                left: currentCardIndex * cardWidth,
                 behavior: 'smooth'
             });
+            updateActiveCard();
         }
 
         prevBtn.addEventListener('click', () => scrollToCard('prev'));
         nextBtn.addEventListener('click', () => scrollToCard('next'));
+
+        // Card flip functionality
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                if (card.classList.contains('active')) {
+                    cards.forEach(c => {
+                        if (c !== card) c.classList.remove('expanded');
+                    });
+                    card.classList.toggle('expanded');
+                }
+            });
+        });
 
         // Handle touch events for mobile
         let touchStartX = 0;
@@ -325,6 +405,19 @@
                 scrollToCard('prev');
             }
         });
+
+        // Intersection Observer for updating active card on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const index = Array.from(cards).indexOf(entry.target);
+                    currentCardIndex = index;
+                    updateActiveCard();
+                }
+            });
+        }, { threshold: 0.5 });
+
+        cards.forEach(card => observer.observe(card));
     </script>
 </body>
 </html>
