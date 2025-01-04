@@ -156,7 +156,7 @@
                     <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/50LW54x2WLpiYMONHRJKEV?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
                 </div>
                 <div class="back">
-                    <p>Click to recalibrate if not working correctly</p>
+                    <p>Name</p>
                 </div>
             </div>
         </div>
@@ -168,6 +168,8 @@
         const rectangleContainer = document.getElementById('rectangleContainer');
         const rectangle = document.getElementById('rectangle');
         const rectangleInner = document.getElementById('rectangleInner');
+
+        let mobilePosition = { rotateX: 0, rotateY: 0 }; // Store mobile orientation
 
         // Update custom pointer position on mousemove
         window.addEventListener('mousemove', (event) => {
@@ -202,8 +204,9 @@
             const x = event.clientX - rect.left - rect.width / 2;
             const y = event.clientY - rect.top - rect.height / 2;
 
-            const rotateX = -y / 10; // Adjust sensitivity for vertical movement
-            const rotateY = x / 10; // Adjust sensitivity for horizontal movement
+            // Apply maximum rotation limits
+            const rotateX = Math.max(Math.min(-y / 10, 20), -20); // Limit X rotation
+            const rotateY = Math.max(Math.min(x / 10, 20), -20); // Limit Y rotation
 
             rectangle.style.transition = "none"; // Immediate response to cursor movement
             rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
@@ -215,12 +218,14 @@
                 const gamma = event.gamma; // Tilt left-right in degrees
                 const beta = event.beta;   // Tilt front-back in degrees
 
-                // Adjust sensitivity for the device's orientation
-                const rotateX = beta / 2; // Adjust for vertical tilt (front-back)
-                const rotateY = gamma / 2; // Adjust for horizontal tilt (left-right)
+                // Store the orientation position on mobile
+                mobilePosition = {
+                    rotateX: Math.max(Math.min(beta / 2, 20), -20), // Limit X rotation to max 20
+                    rotateY: Math.max(Math.min(gamma / 2, 20), -20), // Limit Y rotation to max 20
+                };
 
                 rectangle.style.transition = "none"; // Immediate response to device orientation
-                rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                rectangle.style.transform = `rotateX(${mobilePosition.rotateX}deg) rotateY(${mobilePosition.rotateY}deg)`;
             });
         }
 
