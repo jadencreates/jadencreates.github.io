@@ -153,21 +153,39 @@
             justify-content: center;
             gap: 20px;
             margin-top: 20px;
+            align-items: center;
         }
 
         .nav-btn {
-            background: #1DB954;
-            border: none;
-            color: white;
+            background: transparent;
+            border: 2px solid #1DB954;
+            color: #1DB954;
             padding: 10px 20px;
             border-radius: 20px;
             cursor: none;
             font-weight: bold;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .nav-btn:hover {
+            background: rgba(29, 185, 84, 0.1);
+        }
+
+        .info-btn {
+            background: #1DB954;
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 20px;
+            cursor: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+
+        .info-btn:hover {
             background: #1ed760;
+            transform: scale(1.05);
         }
 
         @media (max-width: 768px) {
@@ -182,6 +200,15 @@
             .card {
                 min-width: 85vw;
                 width: 85vw;
+            }
+
+            .navigation {
+                flex-direction: column;
+            }
+
+            .info-btn {
+                order: -1;
+                width: 100%;
             }
         }
     </style>
@@ -198,7 +225,7 @@
                     </div>
                     <div class="card-back">
                         <h3>SP - Phil</h3>
-                        <p>This is a description of the first project. Click anywhere to flip back.</p>
+                        <p>This is a description of the first project. Click the info button to flip back.</p>
                     </div>
                 </div>
             </div>
@@ -210,7 +237,7 @@
                     </div>
                     <div class="card-back">
                         <h3>KUD - Q~so</h3>
-                        <p>This is a description of the second project. Click anywhere to flip back.</p>
+                        <p>This is a description of the second project. Click the info button to flip back.</p>
                     </div>
                 </div>
             </div>
@@ -222,7 +249,7 @@
                     </div>
                     <div class="card-back">
                         <h3>NYNM - Q~so</h3>
-                        <p>This is a description of the third project. Click anywhere to flip back.</p>
+                        <p>This is a description of the third project. Click the info button to flip back.</p>
                     </div>
                 </div>
             </div>
@@ -234,13 +261,14 @@
                     </div>
                     <div class="card-back">
                         <h3>JKD - Q~so</h3>
-                        <p>This is a description of the fourth project. Click anywhere to flip back.</p>
+                        <p>This is a description of the fourth project. Click the info button to flip back.</p>
                     </div>
                 </div>
             </div>
         </div>
         <div class="navigation">
             <button class="nav-btn" id="prev">Previous</button>
+            <button class="info-btn" id="info">Show More Information</button>
             <button class="nav-btn" id="next">Next</button>
         </div>
     </div>
@@ -251,6 +279,7 @@
         const carousel = document.querySelector('.carousel');
         const prevBtn = document.getElementById('prev');
         const nextBtn = document.getElementById('next');
+        const infoBtn = document.getElementById('info');
         const storyProgress = document.querySelector('.story-progress');
         let currentCardIndex = 0;
 
@@ -269,9 +298,8 @@
             const card = cards[index];
             const cardWidth = card.offsetWidth;
             const containerWidth = carousel.parentElement.offsetWidth;
-            const gap = 30; // matches CSS gap
+            const gap = 30;
             
-            // Calculate the offset to center the active card
             const offset = (containerWidth - cardWidth) / 2;
             const scrollAmount = -(index * (cardWidth + gap)) + offset;
             
@@ -299,7 +327,7 @@
             cursor.style.top = e.clientY - cursor.offsetHeight / 2 + 'px';
         });
 
-        document.querySelectorAll('.card, .nav-btn').forEach(element => {
+        document.querySelectorAll('.card, .nav-btn, .info-btn').forEach(element => {
             element.addEventListener('mouseenter', () => {
                 cursor.style.transform = 'scale(1.5)';
             });
@@ -349,6 +377,13 @@
             });
             updateProgress(currentCardIndex);
             centerActiveCard(currentCardIndex);
+            
+            // Reset info button text when changing cards
+            const activeCard = document.querySelector('.card.active');
+            if (activeCard) {
+                infoBtn.textContent = activeCard.classList.contains('expanded') ? 
+                    'Show Less Information' : 'Show More Information';
+            }
         }
 
         // Initialize
@@ -368,16 +403,17 @@
         prevBtn.addEventListener('click', () => navigateCards('prev'));
         nextBtn.addEventListener('click', () => navigateCards('next'));
 
-        // Card flip
-        cards.forEach(card => {
-            card.addEventListener('click', () => {
-                if (card.classList.contains('active')) {
-                    cards.forEach(c => {
-                        if (c !== card) c.classList.remove('expanded');
-                    });
-                    card.classList.toggle('expanded');
-                }
-            });
+        // Info button handler
+        infoBtn.addEventListener('click', () => {
+            const activeCard = document.querySelector('.card.active');
+            if (activeCard) {
+                cards.forEach(c => {
+                    if (c !== activeCard) c.classList.remove('expanded');
+                });
+                activeCard.classList.toggle('expanded');
+                infoBtn.textContent = activeCard.classList.contains('expanded') ? 
+                    'Show Less Information' : 'Show More Information';
+            }
         });
 
         // Touch navigation
@@ -397,6 +433,14 @@
             }
         });
 
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            centerActiveCard(currentCardIndex, false);
+        });
+    </script>
+    <script>
+        // All previous script content remains exactly the same
+        
         // Handle window resize
         window.addEventListener('resize', () => {
             centerActiveCard(currentCardIndex, false);
