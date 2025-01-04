@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Spotify Carousel with 3D Effect</title>
+    <title>Spotify Tinder Swipe Cards</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,29 +16,33 @@
         .carousel-container {
             width: 80%;
             margin: 50px auto;
-            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            position: relative;
+            height: 500px;
         }
 
         .carousel {
-            display: flex;
-            gap: 20px;
-            transition: transform 0.3s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
 
         .card {
-            position: relative;
+            position: absolute;
             width: 300px;
             height: 380px;
             background: #fff;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             border-radius: 15px;
-            transform-style: preserve-3d;
-            transition: transform 0.5s ease;
-            cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            perspective: 1000px;
+            cursor: pointer;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform-style: preserve-3d;
         }
 
         .card iframe {
@@ -56,34 +60,35 @@
             font-size: 18px;
         }
 
-        .card .card-inner {
-            position: absolute;
+        .card-inner {
+            position: relative;
             width: 100%;
             height: 100%;
-            transition: transform 0.5s;
-            transform-style: preserve-3d;
+            backface-visibility: hidden;
         }
 
-        .card .card-front, .card .card-back {
+        .card-back {
             position: absolute;
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            border-radius: 15px;
-        }
-
-        .card .card-back {
+            transform: rotateY(180deg);
+            padding: 20px;
             background-color: #333;
             color: #fff;
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 18px;
-            transform: rotateY(180deg);
-            padding: 20px;
+            border-radius: 15px;
         }
 
-        .card:hover .card-inner {
+        .card .card-inner {
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+        }
+
+        .card.expanded .card-inner {
             transform: rotateY(180deg);
         }
 
@@ -91,13 +96,23 @@
             transform: scale(1.05);
         }
 
-        .card:active {
-            transform: scale(1.1);
+        .carousel .card:nth-child(1) {
+            z-index: 4;
         }
 
-        .card.expanded {
-            transform: scale(1.2);
-            z-index: 10;
+        .carousel .card:nth-child(2) {
+            z-index: 3;
+            top: 10px;
+        }
+
+        .carousel .card:nth-child(3) {
+            z-index: 2;
+            top: 20px;
+        }
+
+        .carousel .card:nth-child(4) {
+            z-index: 1;
+            top: 30px;
         }
 
     </style>
@@ -110,8 +125,8 @@
             <div class="card" id="card1">
                 <div class="card-inner">
                     <div class="card-front">
-                        <iframe src="https://open.spotify.com/embed/track/4lN3FhZYso06KJgBmsSZjZ" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-                        <div class="card-content">Song 1 - Artist</div>
+                        <iframe src="https://open.spotify.com/embed/track/338V7Yw2XZyT1TmVTvyI0i" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        <div class="card-content">SP - Phil</div>
                     </div>
                     <div class="card-back">
                         <div>Project Info: This is a description of the first project.</div>
@@ -123,8 +138,8 @@
             <div class="card" id="card2">
                 <div class="card-inner">
                     <div class="card-front">
-                        <iframe src="https://open.spotify.com/embed/track/6IleWxpt7WxJ9jcI3gZoLe" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-                        <div class="card-content">Song 2 - Artist</div>
+                        <iframe src="https://open.spotify.com/embed/track/7a2Iis98G2HdlY7L1Un7mI" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        <div class="card-content">KUD - Q~so</div>
                     </div>
                     <div class="card-back">
                         <div>Project Info: This is a description of the second project.</div>
@@ -136,8 +151,8 @@
             <div class="card" id="card3">
                 <div class="card-inner">
                     <div class="card-front">
-                        <iframe src="https://open.spotify.com/embed/track/0n4f0kdVYke5EY1n1pT1Bh" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-                        <div class="card-content">Song 3 - Artist</div>
+                        <iframe src="https://open.spotify.com/embed/track/50LW54x2WLpiYMONHRJKEV" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        <div class="card-content">NYNM - Q~so</div>
                     </div>
                     <div class="card-back">
                         <div>Project Info: This is a description of the third project.</div>
@@ -149,8 +164,8 @@
             <div class="card" id="card4">
                 <div class="card-inner">
                     <div class="card-front">
-                        <iframe src="https://open.spotify.com/embed/track/4l2WLqXUewh20hS3SYb5vc" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-                        <div class="card-content">Song 4 - Artist</div>
+                        <iframe src="https://open.spotify.com/embed/track/4SZV1RpTDDnx4pxdwOlGAf" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        <div class="card-content">JKD - Q~so</div>
                     </div>
                     <div class="card-back">
                         <div>Project Info: This is a description of the fourth project.</div>
@@ -171,8 +186,10 @@
                 // Expand the clicked card
                 card.classList.add('expanded');
             });
+        });
 
-            // 3D Mouse tracking
+        // 3D Mouse tracking
+        cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 const cardRect = card.getBoundingClientRect();
                 const cardCenterX = cardRect.left + cardRect.width / 2;
