@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Tinder Swipe Cards</title>
+    <title>Interactive Spotify Carousel</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,19 +19,16 @@
             display: flex;
             justify-content: center;
             position: relative;
-            height: 500px;
         }
 
         .carousel {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            display: flex;
+            gap: 20px;
+            transition: transform 0.3s ease;
         }
 
         .card {
-            position: absolute;
+            position: relative;
             width: 300px;
             height: 380px;
             background: #fff;
@@ -42,6 +39,7 @@
             align-items: center;
             cursor: pointer;
             transition: transform 0.3s ease, opacity 0.3s ease;
+            transform: scale(0.9); /* Scaled down on load */
             transform-style: preserve-3d;
         }
 
@@ -83,36 +81,12 @@
             border-radius: 15px;
         }
 
-        .card .card-inner {
-            transition: transform 0.5s;
-            transform-style: preserve-3d;
+        .card:hover {
+            transform: scale(1.05); /* Scale up on hover */
         }
 
         .card.expanded .card-inner {
-            transform: rotateY(180deg);
-        }
-
-        .card:hover {
-            transform: scale(1.05);
-        }
-
-        .carousel .card:nth-child(1) {
-            z-index: 4;
-        }
-
-        .carousel .card:nth-child(2) {
-            z-index: 3;
-            top: 10px;
-        }
-
-        .carousel .card:nth-child(3) {
-            z-index: 2;
-            top: 20px;
-        }
-
-        .carousel .card:nth-child(4) {
-            z-index: 1;
-            top: 30px;
+            transform: rotateY(180deg); /* Flip on click */
         }
 
     </style>
@@ -178,13 +152,10 @@
     <script>
         const cards = document.querySelectorAll('.card');
 
+        // Toggle card flip on click
         cards.forEach(card => {
             card.addEventListener('click', () => {
-                // Collapse other cards
-                cards.forEach(c => c.classList.remove('expanded'));
-
-                // Expand the clicked card
-                card.classList.add('expanded');
+                card.classList.toggle('expanded');
             });
         });
 
