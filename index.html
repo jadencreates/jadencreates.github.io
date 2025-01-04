@@ -153,7 +153,7 @@
                 <div class="front">
                     <p>Front Side</p>
                     <!-- Embed Spotify player on the front of the card -->
-                    <iframe src="https://open.spotify.com/embed/track/4c4ZkYs5sH3BwDQy3tKlBS?utm_source=generator" class="spotify-embed" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+                    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/50LW54x2WLpiYMONHRJKEV?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
                 </div>
                 <div class="back">
                     <p>Click to recalibrate if not working correctly</p>
@@ -165,7 +165,6 @@
     <script>
         const customPointer = document.getElementById('customPointer');
         const intro = document.getElementById('intro');
-        const introCircle = document.getElementById('introCircle');
         const rectangleContainer = document.getElementById('rectangleContainer');
         const rectangle = document.getElementById('rectangle');
         const rectangleInner = document.getElementById('rectangleInner');
@@ -210,20 +209,22 @@
             rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
         });
 
-        // Add tilt functionality for touch events (for mobile)
-        rectangleContainer.addEventListener('touchmove', (event) => {
-            const rect = rectangleContainer.getBoundingClientRect();
-            const touch = event.touches[0];
-            const x = touch.clientX - rect.left - rect.width / 2;
-            const y = touch.clientY - rect.top - rect.height / 2;
+        // Device orientation event for mobile
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', (event) => {
+                const gamma = event.gamma; // Tilt left-right in degrees
+                const beta = event.beta;   // Tilt front-back in degrees
 
-            const rotateX = -y / 10; // Adjust sensitivity for vertical movement
-            const rotateY = x / 10; // Adjust sensitivity for horizontal movement
+                // Adjust sensitivity for the device's orientation
+                const rotateX = beta / 2; // Adjust for vertical tilt (front-back)
+                const rotateY = gamma / 2; // Adjust for horizontal tilt (left-right)
 
-            rectangle.style.transition = "none"; // Immediate response to cursor movement
-            rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-        });
+                rectangle.style.transition = "none"; // Immediate response to device orientation
+                rectangle.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+        }
 
+        // Reset rotation on mouse leave
         rectangleContainer.addEventListener('mouseleave', () => {
             rectangle.style.transition = "transform 0.3s ease"; // Smooth return to center
             rectangle.style.transform = `rotateX(0deg) rotateY(0deg)`;
