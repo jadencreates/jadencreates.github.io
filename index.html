@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Spotify Carousel</title>
+    <title>Interactive Spotify Carousel with 3D Effect</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f0f0f0;
+            overflow-x: hidden;
         }
 
         .carousel-container {
@@ -29,30 +30,21 @@
             width: 300px;
             height: 380px;
             background: #fff;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
             border-radius: 15px;
-            transform: rotateY(0deg);
+            transform-style: preserve-3d;
             transition: transform 0.5s ease;
             cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
         }
 
         .card iframe {
             width: 100%;
             height: 100%;
             border-radius: 15px;
-        }
-
-        .card:hover {
-            transform: scale(1.05) rotateY(10deg);
-        }
-
-        .card:active {
-            transform: scale(1.1) rotateY(20deg);
-        }
-
-        .card.expanded {
-            transform: scale(1.2);
-            z-index: 10;
         }
 
         .card-content {
@@ -63,6 +55,51 @@
             font-weight: bold;
             font-size: 18px;
         }
+
+        .card .card-inner {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+        }
+
+        .card .card-front, .card .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+        }
+
+        .card .card-back {
+            background-color: #333;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            transform: rotateY(180deg);
+            padding: 20px;
+        }
+
+        .card:hover .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card:active {
+            transform: scale(1.1);
+        }
+
+        .card.expanded {
+            transform: scale(1.2);
+            z-index: 10;
+        }
+
     </style>
 </head>
 <body>
@@ -71,23 +108,54 @@
         <div class="carousel">
             <!-- Card 1 -->
             <div class="card" id="card1">
-                <iframe src="https://open.spotify.com/embed/track/338V7Yw2XZyT1TmVTvyI0i" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-                <div class="card-content">Soca Party - Father Philis</div>
+                <div class="card-inner">
+                    <div class="card-front">
+                        <iframe src="https://open.spotify.com/embed/track/338V7Yw2XZyT1TmVTvyI0i" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        <div class="card-content">SP - Phil</div>
+                    </div>
+                    <div class="card-back">
+                        <div>Project Info: This is a description of the first project.</div>
+                    </div>
+                </div>
             </div>
+
             <!-- Card 2 -->
             <div class="card" id="card2">
-                <iframe src="https://open.spotify.com/embed/track/7a2Iis98G2HdlY7L1Un7mI" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-                <div class="card-content">Keep Yuh Distance - Q~so</div>
+                <div class="card-inner">
+                    <div class="card-front">
+                        <iframe src="https://open.spotify.com/embed/track/7a2Iis98G2HdlY7L1Un7mI" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        <div class="card-content">KUD - Q~so</div>
+                    </div>
+                    <div class="card-back">
+                        <div>Project Info: This is a description of the second project.</div>
+                    </div>
+                </div>
             </div>
+
             <!-- Card 3 -->
             <div class="card" id="card3">
-                <iframe src="https://open.spotify.com/embed/track/50LW54x2WLpiYMONHRJKEV" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-                <div class="card-content">New Year, New Me - Q~so</div>
+                <div class="card-inner">
+                    <div class="card-front">
+                        <iframe src="https://open.spotify.com/embed/track/50LW54x2WLpiYMONHRJKEV" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        <div class="card-content">NYNM - Q~so</div>
+                    </div>
+                    <div class="card-back">
+                        <div>Project Info: This is a description of the third project.</div>
+                    </div>
+                </div>
             </div>
+
             <!-- Card 4 -->
             <div class="card" id="card4">
-                <iframe src="https://open.spotify.com/embed/track/4SZV1RpTDDnx4pxdwOlGAf" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-                <div class="card-content">Juck King Down - Q~so</div>
+                <div class="card-inner">
+                    <div class="card-front">
+                        <iframe src="https://open.spotify.com/embed/track/4SZV1RpTDDnx4pxdwOlGAf" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        <div class="card-content">JKD - Q~so</div>
+                    </div>
+                    <div class="card-back">
+                        <div>Project Info: This is a description of the fourth project.</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -102,6 +170,24 @@
 
                 // Expand the clicked card
                 card.classList.add('expanded');
+            });
+
+            // 3D Mouse tracking
+            card.addEventListener('mousemove', (e) => {
+                const cardRect = card.getBoundingClientRect();
+                const cardCenterX = cardRect.left + cardRect.width / 2;
+                const cardCenterY = cardRect.top + cardRect.height / 2;
+                const mouseX = e.clientX;
+                const mouseY = e.clientY;
+
+                const deltaX = (mouseX - cardCenterX) / 10;
+                const deltaY = (mouseY - cardCenterY) / 10;
+
+                card.style.transform = `rotateY(${deltaX}deg) rotateX(${-deltaY}deg)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `rotateY(0deg) rotateX(0deg)`;
             });
         });
     </script>
