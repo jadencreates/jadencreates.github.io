@@ -62,47 +62,39 @@
 
         .carousel-container {
             width: 100%;
-            max-width: 1400px;
+            max-width: 100vw;
             margin: 0 auto;
             position: relative;
             padding: 20px;
+            overflow: hidden;
         }
 
         .carousel {
-            display: grid;
-            grid-auto-flow: column;
-            grid-auto-columns: 300px;
+            display: flex;
             gap: 30px;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            padding: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .carousel::-webkit-scrollbar {
-            display: none;
+            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            padding: 40px 0;
         }
 
         .card {
             position: relative;
+            min-width: 300px;
             width: 300px;
             height: 380px;
-            background: #282828;
             border-radius: 15px;
-            scroll-snap-align: center;
             perspective: 1000px;
             transform-style: preserve-3d;
             transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
             filter: blur(4px) brightness(0.7);
             opacity: 0.7;
+            transform: scale(0.8);
         }
 
         .card.active {
             filter: blur(0) brightness(1);
             opacity: 1;
-            transform: scale(1.05);
+            transform: scale(1);
         }
 
         .card.expanded {
@@ -115,6 +107,8 @@
             height: 100%;
             transform-style: preserve-3d;
             transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            border-radius: 15px;
+            overflow: hidden;
         }
 
         .card.expanded .card-inner {
@@ -154,19 +148,6 @@
             transform-style: preserve-3d;
         }
 
-        .card-content {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 15px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.8));
-            color: #fff;
-            font-weight: bold;
-            font-size: 18px;
-            transform-style: preserve-3d;
-        }
-
         .navigation {
             display: flex;
             justify-content: center;
@@ -190,21 +171,17 @@
         }
 
         @media (max-width: 768px) {
-            .carousel {
-                grid-auto-columns: 85vw;
-                gap: 20px;
-            }
-            
-            .card {
-                width: 100%;
-            }
-
             #custom-cursor {
                 display: none;
             }
 
             * {
                 cursor: auto;
+            }
+            
+            .card {
+                min-width: 85vw;
+                width: 85vw;
             }
         }
     </style>
@@ -214,53 +191,49 @@
     <div class="story-progress"></div>
     <div class="carousel-container">
         <div class="carousel">
-            <div class="card" id="card1">
+            <div class="card" id="card1" data-color="#7A3F2D">
                 <div class="card-inner">
                     <div class="card-front">
                         <iframe src="https://open.spotify.com/embed/track/338V7Yw2XZyT1TmVTvyI0i" allowtransparency="true" allow="encrypted-media"></iframe>
-                        <div class="card-content">SP - Phil</div>
                     </div>
                     <div class="card-back">
-                        <h3>Project Details</h3>
+                        <h3>SP - Phil</h3>
                         <p>This is a description of the first project. Click anywhere to flip back.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="card" id="card2">
+            <div class="card" id="card2" data-color="#4F483F">
                 <div class="card-inner">
                     <div class="card-front">
                         <iframe src="https://open.spotify.com/embed/track/7a2Iis98G2HdlY7L1Un7mI" allowtransparency="true" allow="encrypted-media"></iframe>
-                        <div class="card-content">KUD - Q~so</div>
                     </div>
                     <div class="card-back">
-                        <h3>Project Details</h3>
+                        <h3>KUD - Q~so</h3>
                         <p>This is a description of the second project. Click anywhere to flip back.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="card" id="card3">
+            <div class="card" id="card3" data-color="#2B4C7B">
                 <div class="card-inner">
                     <div class="card-front">
                         <iframe src="https://open.spotify.com/embed/track/50LW54x2WLpiYMONHRJKEV" allowtransparency="true" allow="encrypted-media"></iframe>
-                        <div class="card-content">NYNM - Q~so</div>
                     </div>
                     <div class="card-back">
-                        <h3>Project Details</h3>
+                        <h3>NYNM - Q~so</h3>
                         <p>This is a description of the third project. Click anywhere to flip back.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="card" id="card4">
+            <div class="card" id="card4" data-color="#463E3F">
                 <div class="card-inner">
                     <div class="card-front">
                         <iframe src="https://open.spotify.com/embed/track/4SZV1RpTDDnx4pxdwOlGAf" allowtransparency="true" allow="encrypted-media"></iframe>
-                        <div class="card-content">JKD - Q~so</div>
                     </div>
                     <div class="card-back">
-                        <h3>Project Details</h3>
+                        <h3>JKD - Q~so</h3>
                         <p>This is a description of the fourth project. Click anywhere to flip back.</p>
                     </div>
                 </div>
@@ -291,6 +264,21 @@
             storyProgress.appendChild(bar);
         });
 
+        // Center the active card
+        function centerActiveCard(index, animate = true) {
+            const card = cards[index];
+            const cardWidth = card.offsetWidth;
+            const containerWidth = carousel.parentElement.offsetWidth;
+            const gap = 30; // matches CSS gap
+            
+            // Calculate the offset to center the active card
+            const offset = (containerWidth - cardWidth) / 2;
+            const scrollAmount = -(index * (cardWidth + gap)) + offset;
+            
+            carousel.style.transition = animate ? 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)' : 'none';
+            carousel.style.transform = `translateX(${scrollAmount}px)`;
+        }
+
         // Update progress bars
         function updateProgress(index) {
             const fills = document.querySelectorAll('.progress-bar-fill');
@@ -298,6 +286,12 @@
                 fill.style.width = i <= index ? '100%' : '0%';
             });
         }
+
+        // Apply card colors
+        cards.forEach(card => {
+            const color = card.dataset.color;
+            card.querySelector('.card-back').style.background = color;
+        });
 
         // Custom cursor
         document.addEventListener('mousemove', (e) => {
@@ -319,14 +313,14 @@
             window.addEventListener('deviceorientation', (e) => {
                 const activeCard = document.querySelector('.card.active');
                 if (activeCard && !activeCard.classList.contains('expanded')) {
-                    const tiltX = (e.beta - 45) / 2; // Adjust for natural phone holding position
+                    const tiltX = (e.beta - 45) / 2;
                     const tiltY = e.gamma / 2;
-                    activeCard.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1.05)`;
+                    activeCard.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale(1)`;
                 }
             });
         }
 
-        // 3D card effect for desktop
+        // 3D card effect
         cards.forEach(card => {
             card.addEventListener('mousemove', (e) => {
                 if (card.classList.contains('active') && !card.classList.contains('expanded')) {
@@ -337,47 +331,44 @@
                     const centerY = rect.height / 2;
                     const rotateX = (y - centerY) / 15;
                     const rotateY = -(x - centerX) / 15;
-                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1)`;
                 }
             });
 
             card.addEventListener('mouseleave', () => {
                 if (card.classList.contains('active') && !card.classList.contains('expanded')) {
-                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1.05)';
+                    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
                 }
             });
         });
 
-        // Focus and blur effects
+        // Update active card
         function updateActiveCard() {
             cards.forEach((card, index) => {
                 card.classList.toggle('active', index === currentCardIndex);
             });
             updateProgress(currentCardIndex);
+            centerActiveCard(currentCardIndex);
         }
 
-        // Initialize first card as active
+        // Initialize
+        centerActiveCard(0, false);
         updateActiveCard();
 
-        // Smooth scrolling navigation with focus update
-        function scrollToCard(direction) {
-            const cardWidth = cards[0].offsetWidth + 30;
+        // Navigation
+        function navigateCards(direction) {
             if (direction === 'next' && currentCardIndex < cards.length - 1) {
                 currentCardIndex++;
             } else if (direction === 'prev' && currentCardIndex > 0) {
                 currentCardIndex--;
             }
-            carousel.scrollTo({
-                left: currentCardIndex * cardWidth,
-                behavior: 'smooth'
-            });
             updateActiveCard();
         }
 
-        prevBtn.addEventListener('click', () => scrollToCard('prev'));
-        nextBtn.addEventListener('click', () => scrollToCard('next'));
+        prevBtn.addEventListener('click', () => navigateCards('prev'));
+        nextBtn.addEventListener('click', () => navigateCards('next'));
 
-        // Card flip functionality
+        // Card flip
         cards.forEach(card => {
             card.addEventListener('click', () => {
                 if (card.classList.contains('active')) {
@@ -389,7 +380,7 @@
             });
         });
 
-        // Handle touch events for mobile
+        // Touch navigation
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -400,24 +391,16 @@
         carousel.addEventListener('touchend', e => {
             touchEndX = e.changedTouches[0].screenX;
             if (touchStartX - touchEndX > 50) {
-                scrollToCard('next');
+                navigateCards('next');
             } else if (touchEndX - touchStartX > 50) {
-                scrollToCard('prev');
+                navigateCards('prev');
             }
         });
 
-        // Intersection Observer for updating active card on scroll
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const index = Array.from(cards).indexOf(entry.target);
-                    currentCardIndex = index;
-                    updateActiveCard();
-                }
-            });
-        }, { threshold: 0.5 });
-
-        cards.forEach(card => observer.observe(card));
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            centerActiveCard(currentCardIndex, false);
+        });
     </script>
 </body>
 </html>
